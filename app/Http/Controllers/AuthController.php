@@ -11,8 +11,8 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required'],
-            'remember' => ['boolean']
+            'password' => 'required',
+            'remember' => 'boolean'
         ]);
         $remember = $credentials['remember'] ?? false;
         unset($credentials['remember']);
