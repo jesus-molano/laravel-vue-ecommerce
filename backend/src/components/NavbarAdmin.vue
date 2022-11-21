@@ -10,22 +10,23 @@ import { useUserStore } from '../stores/userStore'
 import router from '../router'
 
 const emit = defineEmits(['toggle-sidebar'])
-
 const user = useUserStore()
-function logout () {
-  user.logout()
-    .then(() => {
-      router.push({ name: 'login' })
-    })
-}
 
+function logout () {
+  user.logout().then(() => {
+    router.push({ name: 'login' })
+  })
+}
 </script>
 
 <template>
   <header
     class="h-16 shadow bg-indigo-200 dark:bg-indigo-900/80 flex justify-between items-center sm:rounded-tr-xl px-2"
   >
-    <button @click="emit('toggle-sidebar')" class="p-2 hover:bg-black/20 rounded transition-colors" >
+    <button
+      @click="emit('toggle-sidebar')"
+      class="p-2 hover:bg-black/20 rounded transition-colors"
+    >
       <Bars3Icon class="w-7 text-indigo-900 dark:text-white" />
     </button>
 
@@ -37,9 +38,9 @@ function logout () {
             alt="user_image"
             class="rounded-full w-10"
           />
-          <small class="font-semibold text-indigo-900 dark:text-white"
-            >John Doe</small
-          >
+          <small class="font-semibold text-indigo-900 dark:text-white">
+            {{ user.data.name}}
+          </small>
           <ChevronDownIcon
             class="h-5 w-5 dark:text-indigo-300 text-white hover:text-indigo-100"
             aria-hidden="true"
@@ -79,7 +80,7 @@ function logout () {
             </MenuItem>
             <MenuItem v-slot="{ active }">
               <button
-                @click='logout'
+                @click="logout"
                 :class="[
                   active ? 'bg-rose-700 text-white' : 'text-indigo-900',
                   'group flex w-full items-center rounded-md px-2 py-2 text-sm dark:text-white font-semibold'

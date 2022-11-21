@@ -1,11 +1,10 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { SidebarAdmin, NavbarAdmin } from '@/components'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { SidebarAdmin, NavbarAdmin, LoadingSpinner } from '@/components'
 import { useUserStore } from '../stores/userStore'
 
 const user = useUserStore()
 const sidebarOpened = ref(true)
-const currentUser = computed(() => user.data)
 
 onMounted(() => {
   user.getUser()
@@ -28,7 +27,7 @@ function updateSidebarState () {
 <template>
   <div
     class="flex min-h-full sm:p-3 transition-all max-w-[1620px] mx-auto overflow-hidden"
-    v-if='currentUser.id'
+    v-if='user.data.id'
   >
     <!-- Sidebar -->
     <Transition name="fade" mode="out-in">
@@ -44,13 +43,17 @@ function updateSidebarState () {
       <main
         :class="[
           !sidebarOpened && 'sm:rounded-bl-xl',
-          'dark:bg-black/50 bg-white flex-1 sm:rounded-br-xl'
+          'dark:bg-black/50 bg-slate-100 flex-1 sm:rounded-br-xl'
         ]"
       >
         <RouterView />
       </main>
       <!-- / Content -->
     </div>
+  </div>
+  <div v-else
+  class='flex justify-center items-center h-full'>
+    <LoadingSpinner width="16" height="16"/>
   </div>
 </template>
 

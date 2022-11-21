@@ -19,28 +19,23 @@ export const useUserStore = defineStore('user', () => {
       : sessionStorage.removeItem('TOKEN')
   }
 
-  function getUser (user) {
-    return axiosClient.get('/user', user)
-      .then(({ data }) => {
-        setUser(data)
-        return data
-      })
+  async function getUser (user) {
+    const { data } = await axiosClient.get('/user', user)
+    setUser(data)
+    return data
   }
 
-  function login (user) {
-    return axiosClient.post('/login', user).then(({ data }) => {
-      setUser(data.user)
-      setToken(data.token)
-      return data
-    })
+  async function login (user) {
+    const { data } = await axiosClient.post('/login', user)
+    setUser(data.user)
+    setToken(data.token)
+    return data
   }
 
-  function logout () {
-    return axiosClient.post('/logout')
-      .then((response) => {
-        setToken(null)
-        return response
-      })
+  async function logout () {
+    const response = await axiosClient.post('/logout')
+    setToken(null)
+    return response
   }
 
   return { token, data, login, logout, getUser }
