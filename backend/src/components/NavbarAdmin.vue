@@ -6,8 +6,19 @@ import {
 } from '@heroicons/vue/24/outline'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+import { useUserStore } from '../stores/userStore'
+import router from '../router'
 
 const emit = defineEmits(['toggle-sidebar'])
+
+const user = useUserStore()
+function logout () {
+  user.logout()
+    .then(() => {
+      router.push({ name: 'login' })
+    })
+}
+
 </script>
 
 <template>
@@ -68,6 +79,7 @@ const emit = defineEmits(['toggle-sidebar'])
             </MenuItem>
             <MenuItem v-slot="{ active }">
               <button
+                @click='logout'
                 :class="[
                   active ? 'bg-rose-700 text-white' : 'text-indigo-900',
                   'group flex w-full items-center rounded-md px-2 py-2 text-sm dark:text-white font-semibold'

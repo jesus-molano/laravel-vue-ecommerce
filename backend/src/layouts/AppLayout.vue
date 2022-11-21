@@ -1,22 +1,26 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { SidebarAdmin, NavbarAdmin } from '@/components'
+import { useUserStore } from '../stores/userStore'
 
+const user = useUserStore()
 const sidebarOpened = ref(true)
+const currentUser = computed(() => user.data)
 
 onMounted(() => {
-  handleSidebarOpened()
-  window.addEventListener('resize', handleSidebarOpened)
+  user.getUser()
+  updateSidebarState()
+  window.addEventListener('resize', updateSidebarState)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleSidebarOpened)
+  window.removeEventListener('resize', updateSidebarState)
 })
 
 function toggleSidebar () {
   sidebarOpened.value = !sidebarOpened.value
 }
-function handleSidebarOpened () {
+function updateSidebarState () {
   sidebarOpened.value = window.outerWidth >= 768
 }
 </script>
@@ -24,6 +28,7 @@ function handleSidebarOpened () {
 <template>
   <div
     class="flex min-h-full sm:p-3 transition-all max-w-[1620px] mx-auto overflow-hidden"
+    v-if='currentUser.id'
   >
     <!-- Sidebar -->
     <Transition name="fade" mode="out-in">

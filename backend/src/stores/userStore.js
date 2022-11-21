@@ -8,42 +8,40 @@ export const useUserStore = defineStore('user', () => {
   const data = ref({})
 
   // Actions
-  const setUser = (user) => {
+  const setUser = user => {
     data.value = user
   }
 
-  const setToken = (newToken) => {
+  const setToken = newToken => {
     token.value = newToken
     newToken
       ? sessionStorage.setItem('TOKEN', newToken)
       : sessionStorage.removeItem('TOKEN')
   }
 
-  async function login (user) {
-    try {
-      const data = axiosClient.post('/login', user)
-        .then(response => {
-          const { data } = response
-          return data
-        })
-      console.log(data)
+  function getUser (user) {
+    return axiosClient.get('/user', user)
+      .then(({ data }) => {
+        setUser(data)
+        return data
+      })
+  }
+
+  function login (user) {
+    return axiosClient.post('/login', user).then(({ data }) => {
       setUser(data.user)
       setToken(data.token)
       return data
-    } catch (error) {
-      throw new Error(error.message)
-    }
+    })
   }
 
-  async function logout () {
-    try {
-      const { data } = await axiosClient.post('/logout')
-      setToken(null)
-      return data
-    } catch (error) {
-      throw new Error(error.message)
-    }
+  function logout () {
+    return axiosClient.post('/logout')
+      .then((response) => {
+        setToken(null)
+        return response
+      })
   }
 
-  return { token, data, login, logout }
+  return { token, data, login, logout, getUser }
 })

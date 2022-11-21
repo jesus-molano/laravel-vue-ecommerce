@@ -21,7 +21,7 @@ class Admin
             return $next($request);
         }
         return response([
-            'message' => 'You are not authorized to access this resource',
+            'message' => 'You don\'t have permission to perform this action'
         ], 403);
     }
 }

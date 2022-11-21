@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->references('id')->on('orders');
-            $table->string('amount', 10, 2);
+            $table->decimal('amount', 10, 2);
             $table->string('status', 45);
             $table->string('type', 45);
             $table->timestamps();
