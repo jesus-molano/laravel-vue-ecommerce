@@ -7,14 +7,22 @@ defineProps({
   width: {
     type: String,
     default: '5'
+  },
+  color: {
+    type: String,
+    default: 'text-indigo-500'
+  },
+  darkColor: {
+    type: String,
+    default: 'text-white'
   }
 })
 </script>
 
 <template>
   <svg
-    class="animate-spin -ml-1 mr-3 dark:text-white text-indigo-500"
-    :class='["h-" + height, "w-" + width]'
+    class="animate-spin"
+    :class='["h-" + height, "w-" + width, color, "dark:"+darkColor]'
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
