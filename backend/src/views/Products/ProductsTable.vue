@@ -3,6 +3,14 @@ import { onMounted, ref } from 'vue'
 import { useProductsStore } from '@/stores'
 import { LoadingSpinner, TableHeaderCell } from '@/components'
 import { PRODUCTS_PER_PAGE } from '@/constants'
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
+import {
+  EllipsisVerticalIcon,
+  PencilIcon,
+  TrashIcon
+} from '@heroicons/vue/24/outline'
+
+const emits = defineEmits(['clickEdit'])
 
 const perPage = ref(PRODUCTS_PER_PAGE)
 const search = ref('')
@@ -30,6 +38,7 @@ function getForPage (event, link) {
   }
   getProducts(link.url)
 }
+
 function sortProduct (field) {
   if (sortField.value === field) {
     if (sortDirection.value === 'asc') {
@@ -43,13 +52,29 @@ function sortProduct (field) {
   }
   getProducts()
 }
+
+function editProduct (product) {
+  emits('clickEdit', product)
+}
+
+function deleteProduct (product) {
+  if (!confirm('Are you sure you want to delete the product?')) {
+    return null
+  }
+  products.deleteProduct(product.id)
+    .then(response => {
+      // TODO Show notification
+      products.getProducts()
+    })
+}
+
 </script>
 
 <template>
   <div
-    class="bg-white p-4 rounded-lg shadow flex flex-col justify-center items-center sm:min-h-[600px] min-h-screen sm:mx-2"
+    class="bg-white p-4 rounded-lg shadow flex flex-col items-center sm:min-h-[600px] min-h-screen sm:mx-2"
   >
-    <div class=" flex justify-between border-b-2 pb-3 w-full">
+    <div class="flex justify-between border-b-2 pb-3 w-full">
       <div class="flex items-center">
         <label for="perPage" class="whitespace-nowrap mr-3">Per Page</label>
         <select
@@ -76,7 +101,7 @@ function sortProduct (field) {
         />
       </div>
     </div>
-    <table class="table-auto w-full flex-1">
+    <table class="table-auto w-full">
       <thead>
         <tr>
           <TableHeaderCell
@@ -113,11 +138,12 @@ function sortProduct (field) {
             :sortDirection="sortDirection"
             >Last Updated At</TableHeaderCell
           >
+          <TableHeaderCell field="actions"> Actions </TableHeaderCell>
         </tr>
       </thead>
-      <tbody v-if="products.loading">
-        <tr class="w-full">
-          <td colspan="5">
+      <tbody v-if="products.loading" >
+        <tr class="w-full h-[350px]">
+          <td colspan="6">
             <LoadingSpinner
               width="10"
               height="10"
@@ -128,24 +154,86 @@ function sortProduct (field) {
         </tr>
       </tbody>
       <tbody v-else>
-        <tr v-for="product of products.data" :key="product.id">
-          <td class="border-b p2">{{ product.id }}</td>
-          <td class="border-b p2">
-            <img class="w-16" :src="product.image" :alt="product.title" />
+        <tr v-for="(product) of products.data" :key="product.id" class='align-center animate-fade-in-down'>
+          <!-- :style='{ "animation-delay": `${ index * 0.02 }s` }' -->
+          <td class="border-b">{{ product.id }}</td>
+          <td class="border-b">
+            <img class="w-16 h-12" :src="product.image_url" :alt="product.title" />
           </td>
           <td
-            class="border-b p2 max-w-[200px] whitespace-nowrap overflow-hidden text-ellipsis"
+            class="border-b max-w-[200px] whitespace-nowrap overflow-hidden text-ellipsis"
           >
             {{ product.title }}
           </td>
-          <td class="border-b p2">{{ product.price }}</td>
-          <td class="border-b p2">{{ product.updated_at }}</td>
+          <td class="border-b">{{ product.price }}</td>
+          <td class="border-b">{{ product.updated_at }}</td>
+          <td class="border-b">
+            <Menu as="div" class="relative inline-block pl-4">
+              <div>
+                <MenuButton
+                  class="p-1 inline-flex items-center justify-center w-full rounded-full bg-black bg-opacity-0 text-sm hover:bg-black/10 focus:outline-indigo-600"
+                >
+                  <EllipsisVerticalIcon
+                    class="h-5 w-5 text-indigo-500"
+                    aria-hidden="true"
+                  />
+                </MenuButton>
+              </div>
+              <Transition
+                enter-active-class="transition duration-100 ease-out"
+                enter-from-class="transform scale-95 opacity-0"
+                enter-to-class="transform scale-100 opacity-100"
+                leave-active-class="transition duration-75 ease-in"
+                leave-from-class="transform scale-100 opacity-100"
+                leave-to-class="transform scale-95 opacity-0"
+              >
+                <MenuItems
+                  class="absolute z-10 right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1"
+                >
+                  <div class="p-1">
+                    <MenuItem v-slot="{ active }">
+                      <button
+                        :class="[
+                          active ? 'bg-indigo-600 text-white' : 'text-gray-900',
+                          'group flex w-full items-center rounded-md p-2 text-sm'
+                        ]"
+                        @click='editProduct(product)'
+                      >
+                        <PencilIcon
+                          :active="active"
+                          class="mr-2 h-5 w-5 text-indigo-400"
+                          aria-hidden="true"
+                        />
+                        Edit
+                      </button>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                      <button
+                        :class="[
+                          active ? 'bg-rose-600 text-white' : 'text-gray-900',
+                          'group flex w-full items-center rounded-md p-2 text-sm'
+                        ]"
+                        @click="deleteProduct(product)"
+                      >
+                        <TrashIcon
+                          :active="active"
+                          class="mr-2 h-5 w-5 text-rose-400"
+                          aria-hidden="true"
+                        />
+                        Delete
+                      </button>
+                    </MenuItem>
+                  </div>
+                </MenuItems>
+              </Transition>
+            </Menu>
+          </td>
         </tr>
       </tbody>
     </table>
     <div
       v-if="!products.loading"
-      class="flex justify-between items-center mt-5 gap-2"
+      class="flex justify-between items-center gap-2 pt-2 mt-auto"
     >
       <span> Showing from {{ products.from }} to {{ products.to }} </span>
       <nav
@@ -160,7 +248,7 @@ function sortProduct (field) {
           :disabled="!link.url"
           @click.prevent="getForPage($event, link)"
           aria-current="page"
-          class="relative inline-flex items-center px-4 py-2 border text-sm font-medium whitespace-nowrap"
+          class="relative inline-flex items-center px-4 py-2 border text-sm font-medium whitespace-nowrap focus:outline-indigo-600"
           v-html="link.label"
           :class="[
             link.active
@@ -176,4 +264,5 @@ function sortProduct (field) {
     </div>
   </div>
 </template>
-<style lang="scss" scoped></style>
+<style scoped>
+</style>

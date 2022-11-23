@@ -45,6 +45,10 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  function getProduct (id) {
+    return axiosClient.get(`/products/${id}`)
+  }
+
   function createProduct (product) {
     if (product.image instanceof File) {
       const form = new FormData()
@@ -74,6 +78,10 @@ export const useProductsStore = defineStore('products', () => {
     return axiosClient.post(`/products/${id}`, product)
   }
 
+  function deleteProduct (id) {
+    return axiosClient.delete(`/products/${id}`)
+  }
+
   return {
     loading,
     data,
@@ -84,7 +92,9 @@ export const useProductsStore = defineStore('products', () => {
     limit,
     total,
     getProducts,
+    getProduct,
     createProduct,
-    updateProduct
+    updateProduct,
+    deleteProduct
   }
 })

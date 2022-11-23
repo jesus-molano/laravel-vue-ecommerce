@@ -1,19 +1,28 @@
 <script setup>
 import { ref } from 'vue'
+import { useProductsStore } from '@/stores'
 import ProductsTable from './ProductsTable.vue'
 import ProductModal from './ProductModal.vue'
+import { DEFAULT_EMPTY_PRODUCT } from '@/constants.js'
 
+const products = useProductsStore()
 const displayedModal = ref(false)
-const productModel = ref({
-  id: '',
-  title: '',
-  image: '',
-  description: '',
-  price: ''
-})
+const productModel = ref(DEFAULT_EMPTY_PRODUCT)
 
 function showProductModal () {
   displayedModal.value = true
+}
+
+function editProduct (product) {
+  products.getProduct(product.id)
+    .then(({ data }) => {
+      productModel.value = data
+      showProductModal()
+    })
+}
+
+function onModalClose () {
+  productModel.value = DEFAULT_EMPTY_PRODUCT
 }
 
 </script>
@@ -28,7 +37,7 @@ function showProductModal () {
       Add new Product
     </button>
   </div>
-  <ProductModal v-model='displayedModal' :product='productModel'/>
-  <ProductsTable />
+  <ProductModal v-model='displayedModal' :product='productModel' @close='onModalClose'/>
+  <ProductsTable @clickEdit='editProduct' />
 </template>
 <style lang="scss" scoped></style>
